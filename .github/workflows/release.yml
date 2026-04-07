@@ -28,6 +28,10 @@ jobs:
             os: ubuntu-latest
             bin: claw
             artifact_name: claw-linux-x64
+          - name: linux-arm64
+            os: ubuntu-24.04-arm
+            bin: claw
+            artifact_name: claw-linux-arm64
           - name: macos-arm64
             os: macos-14
             bin: claw

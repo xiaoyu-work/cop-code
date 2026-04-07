@@ -1,115 +1,58 @@
-# Claw Code
+# Copilot Code
 
-<p align="center">
-  <a href="https://github.com/ultraworkers/claw-code">ultraworkers/claw-code</a>
-  ·
-  <a href="./USAGE.md">Usage</a>
-  ·
-  <a href="./rust/README.md">Rust workspace</a>
-  ·
-  <a href="./PARITY.md">Parity</a>
-  ·
-  <a href="./ROADMAP.md">Roadmap</a>
-  ·
-  <a href="https://discord.gg/5TUQKqFWd">UltraWorkers Discord</a>
-</p>
+A terminal-based AI coding agent powered by your **GitHub Copilot subscription**. No separate API key needed — just `claw login copilot` and go.
 
-<p align="center">
-  <a href="https://star-history.com/#ultraworkers/claw-code&Date">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=ultraworkers/claw-code&type=Date&theme=dark" />
-      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=ultraworkers/claw-code&type=Date" />
-      <img alt="Star history for ultraworkers/claw-code" src="https://api.star-history.com/svg?repos=ultraworkers/claw-code&type=Date" width="600" />
-    </picture>
-  </a>
-</p>
+Forked from [Claw Code](https://github.com/ultraworkers/claw-code) (a Rust reimplementation of Claude Code). The primary addition is **GitHub Copilot OAuth support**, so anyone with a Copilot subscription can use a Claude-quality coding agent directly from the terminal.
 
-<p align="center">
-  <img src="assets/claw-hero.jpeg" alt="Claw Code" width="300" />
-</p>
+## Install
 
-Claw Code is the public Rust implementation of the `claw` CLI agent harness.
-The canonical implementation lives in [`rust/`](./rust), and the current source of truth for this repository is **ultraworkers/claw-code**.
+```bash
+curl -fsSL https://raw.githubusercontent.com/xiaoyu-work/copilot-code/main/install.sh | bash
+```
 
-> [!IMPORTANT]
-> Start with [`USAGE.md`](./USAGE.md) for build, auth, CLI, session, and parity-harness workflows. Make `claw doctor` your first health check after building, use [`rust/README.md`](./rust/README.md) for crate-level details, read [`PARITY.md`](./PARITY.md) for the current Rust-port checkpoint, and see [`docs/container.md`](./docs/container.md) for the container-first workflow.
-
-## Current repository shape
-
-- **`rust/`** — canonical Rust workspace and the `claw` CLI binary
-- **`USAGE.md`** — task-oriented usage guide for the current product surface
-- **`PARITY.md`** — Rust-port parity status and migration notes
-- **`ROADMAP.md`** — active roadmap and cleanup backlog
-- **`PHILOSOPHY.md`** — project intent and system-design framing
-- **`src/` + `tests/`** — companion Python/reference workspace and audit helpers; not the primary runtime surface
-
-## Quick start
+Or build from source:
 
 ```bash
 cd rust
-cargo build --workspace
-./target/debug/claw --help
-./target/debug/claw prompt "summarize this repository"
+cargo build --release --bin claw
 ```
 
-Authenticate with either an API key or the built-in OAuth flow:
+## Usage
 
-```bash
-# Anthropic API key
-export ANTHROPIC_API_KEY="sk-ant-..."
-
-# or Anthropic OAuth
-cd rust
-./target/debug/claw login
-```
-
-### GitHub Copilot
-
-If you have a GitHub Copilot subscription, you can use it as a provider — no Anthropic API key needed:
+### GitHub Copilot (recommended)
 
 ```bash
 # One-time login via GitHub device flow
-./target/debug/claw login copilot
+claw login copilot
 
-# Then launch with the Copilot provider
-./target/debug/claw --provider copilot
+# Launch
+claw --provider copilot
 ```
 
-### OpenAI-compatible providers
+### Anthropic
+
+```bash
+export ANTHROPIC_API_KEY="sk-ant-..."
+claw
+```
+
+### OpenAI-compatible
 
 ```bash
 export OPENAI_API_KEY="sk-..."
-export OPENAI_BASE_URL="https://api.openai.com/v1"   # or any compatible endpoint
-./target/debug/claw --provider openai --model gpt-4o
+claw --provider openai --model gpt-4o
 ```
 
-Run the workspace test suite:
+## Features
 
-```bash
-cd rust
-cargo test --workspace
-```
+- 🤖 Interactive REPL + one-shot prompt mode
+- 🔧 Built-in tools: bash, read/write files, search, web fetch
+- 🔑 GitHub Copilot OAuth, Anthropic API key/OAuth, OpenAI-compatible
+- 🧩 Plugin system & MCP support
+- 💾 Session persistence & resume
 
-## Documentation map
+## Acknowledgements
 
-- [`USAGE.md`](./USAGE.md) — quick commands, auth, sessions, config, parity harness
-- [`rust/README.md`](./rust/README.md) — crate map, CLI surface, features, workspace layout
-- [`PARITY.md`](./PARITY.md) — parity status for the Rust port
-- [`rust/MOCK_PARITY_HARNESS.md`](./rust/MOCK_PARITY_HARNESS.md) — deterministic mock-service harness details
-- [`ROADMAP.md`](./ROADMAP.md) — active roadmap and open cleanup work
-- [`PHILOSOPHY.md`](./PHILOSOPHY.md) — why the project exists and how it is operated
+This project is based on [Claw Code](https://github.com/ultraworkers/claw-code) by the UltraWorkers community, which is itself a Rust reimplementation inspired by Anthropic's Claude Code.
 
-## Ecosystem
-
-Claw Code is built in the open alongside the broader UltraWorkers toolchain:
-
-- [clawhip](https://github.com/Yeachan-Heo/clawhip)
-- [oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent)
-- [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode)
-- [oh-my-codex](https://github.com/Yeachan-Heo/oh-my-codex)
-- [UltraWorkers Discord](https://discord.gg/5TUQKqFWd)
-
-## Ownership / affiliation disclaimer
-
-- This repository does **not** claim ownership of the original Claude Code source material.
-- This repository is **not affiliated with, endorsed by, or maintained by Anthropic**.
+This project is **not affiliated with, endorsed by, or maintained by Anthropic or GitHub**.

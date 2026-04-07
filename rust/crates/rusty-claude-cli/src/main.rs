@@ -6582,7 +6582,9 @@ fn format_glob_result(icon: &str, parsed: &serde_json::Value) -> String {
         .get("numFiles")
         .and_then(serde_json::Value::as_u64)
         .unwrap_or(0);
-    format!("\u{23BF}  {icon} \x1b[38;5;245mglob_search\x1b[0m \x1b[2mmatched {num_files} files\x1b[0m")
+    format!(
+        "\u{23BF}  {icon} \x1b[38;5;245mglob_search\x1b[0m \x1b[2mmatched {num_files} files\x1b[0m"
+    )
 }
 
 fn format_grep_result(icon: &str, parsed: &serde_json::Value) -> String {
@@ -6627,7 +6629,6 @@ fn truncate_for_summary(value: &str, limit: usize) -> String {
         truncated
     }
 }
-
 
 fn render_thinking_block_summary(
     out: &mut (impl Write + ?Sized),
@@ -8259,7 +8260,10 @@ mod tests {
         });
 
         assert!(banner.contains("/help"), "banner should mention /help");
-        assert!(banner.contains("CLAW") || banner.contains("██"), "banner should have logo");
+        assert!(
+            banner.contains("CLAW") || banner.contains("██"),
+            "banner should have logo"
+        );
 
         fs::remove_dir_all(root).expect("cleanup temp dir");
         std::env::remove_var("ANTHROPIC_API_KEY");
@@ -8919,7 +8923,10 @@ UU conflicted.rs",
             false,
         );
         assert!(done.contains("📄 Read src/main.rs"));
-        assert!(!done.contains("hello"), "compact read result should not include file content");
+        assert!(
+            !done.contains("hello"),
+            "compact read result should not include file content"
+        );
         assert!(done.contains('\u{23BF}'));
     }
 
@@ -8945,8 +8952,14 @@ UU conflicted.rs",
         // Compact: only shows one-line summary, no file content
         assert!(rendered.contains("📄 Read src/main.rs"));
         assert!(rendered.contains("200"));
-        assert!(!rendered.contains("line 000"), "compact read result should not include file content");
-        assert!(!rendered.contains("line 199"), "compact read result should not include file content");
+        assert!(
+            !rendered.contains("line 000"),
+            "compact read result should not include file content"
+        );
+        assert!(
+            !rendered.contains("line 199"),
+            "compact read result should not include file content"
+        );
     }
 
     #[test]
@@ -8966,8 +8979,14 @@ UU conflicted.rs",
 
         // Compact: shows summary with line count, no stdout content
         assert!(rendered.contains("bash"));
-        assert!(rendered.contains("120 lines"), "should show stdout line count");
-        assert!(!rendered.contains("stdout 000"), "compact bash result should not include stdout");
+        assert!(
+            rendered.contains("120 lines"),
+            "should show stdout line count"
+        );
+        assert!(
+            !rendered.contains("stdout 000"),
+            "compact bash result should not include stdout"
+        );
     }
 
     #[test]
@@ -8985,7 +9004,10 @@ UU conflicted.rs",
 
         // Compact: only shows tool name, no payload content
         assert!(rendered.contains("plugin_echo"));
-        assert!(!rendered.contains("payload 000"), "compact generic result should not include content");
+        assert!(
+            !rendered.contains("payload 000"),
+            "compact generic result should not include content"
+        );
     }
 
     #[test]
@@ -8999,8 +9021,14 @@ UU conflicted.rs",
 
         // Compact: shows tool name and first-line summary, no full dump
         assert!(rendered.contains("plugin_echo"));
-        assert!(rendered.contains("raw 000"), "should show first line as summary");
-        assert!(!rendered.contains("raw 001"), "should not dump subsequent lines");
+        assert!(
+            rendered.contains("raw 000"),
+            "should show first line as summary"
+        );
+        assert!(
+            !rendered.contains("raw 001"),
+            "should not dump subsequent lines"
+        );
         assert!(!rendered.contains("raw 119"), "should not dump all content");
     }
 
