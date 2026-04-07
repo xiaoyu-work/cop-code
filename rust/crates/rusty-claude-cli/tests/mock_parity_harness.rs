@@ -313,6 +313,8 @@ fn run_case(case: ScenarioCase, workspace: &HarnessWorkspace, base_url: &str) ->
         .env("NO_COLOR", "1")
         .env("PATH", "/usr/bin:/bin")
         .args([
+            "--provider",
+            "anthropic",
             "--model",
             "sonnet",
             "--permission-mode",

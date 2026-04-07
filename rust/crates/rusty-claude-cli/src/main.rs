@@ -57,8 +57,8 @@ use serde::Deserialize;
 use serde_json::{json, Map, Value};
 use tools::{GlobalToolRegistry, RuntimeToolDefinition, ToolSearchOutput};
 
-const DEFAULT_MODEL: &str = "claude-opus-4-6";
-const DEFAULT_PROVIDER: ProviderKind = ProviderKind::Anthropic;
+const DEFAULT_MODEL: &str = "claude-sonnet-4.6";
+const DEFAULT_PROVIDER: ProviderKind = ProviderKind::Copilot;
 fn max_tokens_for_model(model: &str) -> u32 {
     if model.contains("opus") {
         32_000
@@ -7616,7 +7616,7 @@ mod tests {
             parse_args(&args).expect("args should parse"),
             CliAction::Prompt {
                 prompt: "explain this".to_string(),
-                model: "claude-opus-4-6".to_string(),
+                model: "claude-opus-4.6".to_string(),
                 output_format: CliOutputFormat::Text,
                 allowed_tools: None,
                 permission_mode: PermissionMode::DangerFullAccess,

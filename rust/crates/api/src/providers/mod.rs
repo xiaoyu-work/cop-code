@@ -227,11 +227,11 @@ pub fn detect_provider_kind(model: &str) -> ProviderKind {
     if let Some(metadata) = metadata_for_model(model) {
         return metadata.provider;
     }
-    if anthropic::has_auth_from_env_or_saved().unwrap_or(false) {
-        return ProviderKind::Anthropic;
-    }
     if copilot::has_github_token_from_env_or_saved().unwrap_or(false) {
         return ProviderKind::Copilot;
+    }
+    if anthropic::has_auth_from_env_or_saved().unwrap_or(false) {
+        return ProviderKind::Anthropic;
     }
     if openai_compat::has_api_key("OPENAI_API_KEY") {
         return ProviderKind::OpenAi;
@@ -239,7 +239,7 @@ pub fn detect_provider_kind(model: &str) -> ProviderKind {
     if openai_compat::has_api_key("XAI_API_KEY") {
         return ProviderKind::Xai;
     }
-    ProviderKind::Anthropic
+    ProviderKind::Copilot
 }
 
 #[must_use]
