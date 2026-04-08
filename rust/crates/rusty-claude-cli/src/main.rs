@@ -2725,8 +2725,14 @@ fn run_repl(
                 }
                 match SlashCommand::parse(&trimmed) {
                     Ok(Some(command)) => {
-                        if cli.handle_repl_command(command)? {
-                            cli.persist_session()?;
+                        match cli.handle_repl_command(command) {
+                            Ok(true) => {
+                                if let Err(e) = cli.persist_session() {
+                                    eprintln!("error: {e}\n");
+                                }
+                            }
+                            Err(error) => eprintln!("error: {error}\n"),
+                            _ => {}
                         }
                         continue;
                     }
@@ -2737,7 +2743,9 @@ fn run_repl(
                     }
                 }
                 editor.push_history(input);
-                cli.run_turn(&trimmed)?;
+                if let Err(error) = cli.run_turn(&trimmed) {
+                    eprintln!("error: {error}\n");
+                }
             }
             input::ReadOutcome::Cancel => {}
             input::ReadOutcome::Exit => {
@@ -3374,9 +3382,10 @@ impl LiveCli {
                 Ok(())
             }
             Err(error) => {
-                runtime.shutdown_plugins()?;
+                let _ = runtime.shutdown_plugins();
+                let error_msg = format!("❌ Request failed: {error}");
                 spinner.fail(
-                    "❌ Request failed",
+                    &error_msg,
                     TerminalRenderer::new().color_theme(),
                     &mut stdout,
                 )?;
