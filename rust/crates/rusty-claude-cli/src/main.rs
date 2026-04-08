@@ -7474,6 +7474,7 @@ mod tests {
                 allowed_tools: None,
                 permission_mode: PermissionMode::DangerFullAccess,
                 provider: DEFAULT_PROVIDER,
+                tui: false,
             }
         );
     }
@@ -7721,6 +7722,7 @@ mod tests {
                 allowed_tools: None,
                 permission_mode: PermissionMode::ReadOnly,
                 provider: DEFAULT_PROVIDER,
+                tui: false,
             }
         );
     }
@@ -7746,8 +7748,30 @@ mod tests {
                 ),
                 permission_mode: PermissionMode::DangerFullAccess,
                 provider: DEFAULT_PROVIDER,
+                tui: false,
             }
         );
+    }
+
+    #[test]
+    fn parses_tui_flag_for_interactive_mode() {
+        assert_eq!(
+            parse_args(&["--tui".to_string()]).expect("tui args should parse"),
+            CliAction::Repl {
+                model: DEFAULT_MODEL.to_string(),
+                allowed_tools: None,
+                permission_mode: PermissionMode::DangerFullAccess,
+                provider: DEFAULT_PROVIDER,
+                tui: true,
+            }
+        );
+    }
+
+    #[test]
+    fn rejects_tui_flag_for_non_interactive_invocation() {
+        let error = parse_args(&["--tui".to_string(), "status".to_string()])
+            .expect_err("tui prompt should stay interactive-only");
+        assert!(error.contains("claw --tui"));
     }
 
     #[test]
@@ -8311,7 +8335,7 @@ mod tests {
 
         let banner = with_current_dir(&root, || {
             LiveCli::new(
-                DEFAULT_PROVIDER,
+                ProviderKind::Anthropic,
                 "claude-sonnet-4-6".to_string(),
                 true,
                 None,
@@ -9575,8 +9599,8 @@ UU conflicted.rs",
         let mut runtime = build_runtime_with_plugin_state(
             Session::new(),
             "runtime-plugin-lifecycle",
-            DEFAULT_PROVIDER,
-            DEFAULT_MODEL.to_string(),
+            ProviderKind::Anthropic,
+            "claude-sonnet-4-6".to_string(),
             vec!["test system prompt".to_string()],
             true,
             false,
