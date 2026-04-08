@@ -3731,11 +3731,21 @@ impl ApiClient for ProviderRuntimeClient {
                 input_schema: spec.input_schema,
             })
             .collect::<Vec<_>>();
+        let (converted_messages, system_from_compaction) = convert_messages(&request.messages);
+        let mut system_parts: Vec<String> = request
+            .system_prompt
+            .iter()
+            .filter(|s| !s.is_empty())
+            .cloned()
+            .collect();
+        if let Some(compaction_text) = system_from_compaction {
+            system_parts.push(compaction_text);
+        }
         let message_request = MessageRequest {
             model: self.model.clone(),
             max_tokens: max_tokens_for_model(&self.model),
-            messages: convert_messages(&request.messages),
-            system: (!request.system_prompt.is_empty()).then(|| request.system_prompt.join("\n\n")),
+            messages: converted_messages,
+            system: (!system_parts.is_empty()).then(|| system_parts.join("\n\n")),
             tools: (!tools.is_empty()).then_some(tools),
             tool_choice: (!self.allowed_tools.is_empty()).then_some(ToolChoice::Auto),
             stream: true,
@@ -3873,12 +3883,29 @@ fn tool_specs_for_allowed_tools(allowed_tools: Option<&BTreeSet<String>>) -> Vec
         .collect()
 }
 
-fn convert_messages(messages: &[ConversationMessage]) -> Vec<InputMessage> {
-    messages
+fn convert_messages(messages: &[ConversationMessage]) -> (Vec<InputMessage>, Option<String>) {
+    let mut system_text: Option<String> = None;
+    let converted = messages
         .iter()
         .filter_map(|message| {
+            if message.role == MessageRole::System {
+                let text: String = message
+                    .blocks
+                    .iter()
+                    .filter_map(|b| match b {
+                        ContentBlock::Text { text } => Some(text.as_str()),
+                        _ => None,
+                    })
+                    .collect::<Vec<_>>()
+                    .join("\n");
+                if !text.is_empty() {
+                    system_text = Some(text);
+                }
+                return None;
+            }
             let role = match message.role {
-                MessageRole::System | MessageRole::User | MessageRole::Tool => "user",
+                MessageRole::System => unreachable!(),
+                MessageRole::User | MessageRole::Tool => "user",
                 MessageRole::Assistant => "assistant",
             };
             let content = message
@@ -3911,7 +3938,8 @@ fn convert_messages(messages: &[ConversationMessage]) -> Vec<InputMessage> {
                 content,
             })
         })
-        .collect()
+        .collect();
+    (converted, system_text)
 }
 
 fn push_output_block(
