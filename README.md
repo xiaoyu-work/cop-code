@@ -1,4 +1,4 @@
-# Copilot Code
+# Cop Code
 
 A terminal-based AI coding agent powered by your **GitHub Copilot subscription**. No separate API key needed — just `claw login copilot` and go.
 
