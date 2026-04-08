@@ -190,6 +190,35 @@ pub fn normalize_model_for_provider(provider: ProviderKind, model: &str) -> Stri
     }
 }
 
+/// Lists available models for the given provider.
+#[must_use]
+pub fn available_models_for_provider(provider: ProviderKind) -> &'static [&'static str] {
+    match provider {
+        ProviderKind::Copilot => &[
+            "claude-sonnet-4.6",
+            "claude-opus-4.6",
+            "claude-sonnet-4.5",
+            "claude-opus-4.5",
+            "claude-sonnet-4",
+            "claude-haiku-4.5",
+            "gpt-5.3-codex",
+            "gpt-5.2-codex",
+            "gpt-5.2",
+            "gpt-5.1",
+            "gpt-5-mini",
+            "gpt-4.1",
+            "gemini-3-pro",
+        ],
+        ProviderKind::Anthropic => &[
+            "claude-opus-4-6",
+            "claude-sonnet-4-6",
+            "claude-haiku-4-5-20251213",
+        ],
+        ProviderKind::OpenAi => &["gpt-4.1", "gpt-5-mini", "gpt-5.1", "gpt-5.2"],
+        ProviderKind::Xai => &["grok-3", "grok-3-mini"],
+    }
+}
+
 #[must_use]
 pub const fn default_model_for_provider(provider: ProviderKind) -> &'static str {
     match provider {
@@ -265,11 +294,17 @@ pub fn model_token_limit(model: &str) -> Option<ModelTokenLimit> {
             max_output_tokens: 32_000,
             context_window_tokens: 200_000,
         }),
-        "claude-sonnet-4-6" | "claude-haiku-4-5-20251213" => Some(ModelTokenLimit {
+        "claude-sonnet-4-6"
+        | "claude-haiku-4-5-20251213"
+        | "gpt-5.3-codex"
+        | "gpt-5.2-codex"
+        | "gpt-5.2"
+        | "gpt-5.1"
+        | "gemini-3-pro" => Some(ModelTokenLimit {
             max_output_tokens: 64_000,
             context_window_tokens: 200_000,
         }),
-        // Copilot-routed models use dotted names and have a lower context window.
+        // Copilot-routed Claude models use dotted names and have a lower context window.
         "claude-opus-4.6" => Some(ModelTokenLimit {
             max_output_tokens: 32_000,
             context_window_tokens: 168_000,
@@ -277,6 +312,10 @@ pub fn model_token_limit(model: &str) -> Option<ModelTokenLimit> {
         "claude-sonnet-4.6" | "claude-haiku-4.5" => Some(ModelTokenLimit {
             max_output_tokens: 64_000,
             context_window_tokens: 168_000,
+        }),
+        "gpt-5-mini" | "gpt-4.1" => Some(ModelTokenLimit {
+            max_output_tokens: 32_000,
+            context_window_tokens: 128_000,
         }),
         "grok-3" | "grok-3-mini" => Some(ModelTokenLimit {
             max_output_tokens: 64_000,

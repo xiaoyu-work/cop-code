@@ -23,8 +23,8 @@ pub use providers::copilot::{
 };
 pub use providers::openai_compat::{OpenAiCompatClient, OpenAiCompatConfig};
 pub use providers::{
-    default_model_for_provider, detect_provider_kind, max_tokens_for_model,
-    normalize_model_for_provider, resolve_model_alias, ProviderKind,
+    available_models_for_provider, default_model_for_provider, detect_provider_kind,
+    max_tokens_for_model, normalize_model_for_provider, resolve_model_alias, ProviderKind,
 };
 pub use sse::{parse_frame, SseParser};
 pub use types::{

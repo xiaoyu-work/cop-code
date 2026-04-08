@@ -24,11 +24,12 @@ use std::thread::{self, JoinHandle};
 use std::time::{Duration, Instant, UNIX_EPOCH};
 
 use api::{
-    default_model_for_provider, normalize_model_for_provider, oauth_token_is_expired,
-    poll_copilot_device_code_token, request_copilot_device_code, resolve_startup_auth_source,
-    AnthropicClient, AuthSource, ContentBlockDelta, InputContentBlock, InputMessage,
-    MessageRequest, MessageResponse, OutputContentBlock, PromptCache, ProviderClient, ProviderKind,
-    StreamEvent as ApiStreamEvent, ToolChoice, ToolDefinition, ToolResultContentBlock,
+    available_models_for_provider, default_model_for_provider, normalize_model_for_provider,
+    oauth_token_is_expired, poll_copilot_device_code_token, request_copilot_device_code,
+    resolve_startup_auth_source, AnthropicClient, AuthSource, ContentBlockDelta, InputContentBlock,
+    InputMessage, MessageRequest, MessageResponse, OutputContentBlock, PromptCache, ProviderClient,
+    ProviderKind, StreamEvent as ApiStreamEvent, ToolChoice, ToolDefinition,
+    ToolResultContentBlock,
 };
 
 use commands::{
@@ -2185,16 +2186,37 @@ fn format_unknown_slash_command_message(name: &str) -> String {
     message
 }
 
-fn format_model_report(model: &str, message_count: usize, turns: u32) -> String {
+fn format_model_report(
+    model: &str,
+    provider: ProviderKind,
+    message_count: usize,
+    turns: u32,
+) -> String {
+    let models = available_models_for_provider(provider);
+    let model_list = models
+        .iter()
+        .map(|m| {
+            if *m == model {
+                format!("  \x1b[1;32m● {m}\x1b[0m \x1b[2m(current)\x1b[0m")
+            } else {
+                format!("    {m}")
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
     format!(
         "Model
   Current model    {model}
+  Provider         {}
   Session messages {message_count}
   Session turns    {turns}
 
+Available models
+{model_list}
+
 Usage
-  Inspect current model with /model
-  Switch models with /model <name>"
+  Switch models with /model <name>",
+        provider.as_str()
     )
 }
 
@@ -3620,6 +3642,7 @@ impl LiveCli {
                 "{}",
                 format_model_report(
                     &self.model,
+                    self.provider,
                     self.runtime.session().messages.len(),
                     self.runtime.usage().turns(),
                 )
@@ -3634,6 +3657,7 @@ impl LiveCli {
                 "{}",
                 format_model_report(
                     &self.model,
+                    self.provider,
                     self.runtime.session().messages.len(),
                     self.runtime.usage().turns(),
                 )
@@ -8361,10 +8385,12 @@ mod tests {
 
     #[test]
     fn model_report_uses_sectioned_layout() {
-        let report = format_model_report("claude-sonnet", 12, 4);
+        let report = format_model_report("claude-sonnet-4.6", ProviderKind::Copilot, 12, 4);
         assert!(report.contains("Model"));
-        assert!(report.contains("Current model    claude-sonnet"));
+        assert!(report.contains("Current model    claude-sonnet-4.6"));
         assert!(report.contains("Session messages 12"));
+        assert!(report.contains("Available models"));
+        assert!(report.contains("● claude-sonnet-4.6"));
         assert!(report.contains("Switch models with /model <name>"));
     }
 
