@@ -7,7 +7,7 @@ Forked from [Claw Code](https://github.com/ultraworkers/claw-code) (a Rust reimp
 ## Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/xiaoyu-work/copilot-code/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/xiaoyu-work/cop-code/main/install.sh | bash
 ```
 
 Or build from source:
